@@ -2,10 +2,8 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb'
 import { defineEventHandler, readBody, createError, getRouterParam, type H3Event } from 'h3'
 
-const client = new DynamoDBClient({ region: process.env.AWS_REGION || 'eu-central-1' })
-const docClient = DynamoDBDocumentClient.from(client)
-
 export default defineEventHandler(async (event: H3Event) => {
+  const config = useRuntimeConfig()
   const sightingId = getRouterParam(event, 'id')
 
   if (!sightingId) {
@@ -13,6 +11,15 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   try {
+    const client = new DynamoDBClient({
+      region: (config.awsRegion as string) || 'eu-central-1',
+      credentials: {
+        accessKeyId: (config.myAccessKeyId as string) || '',
+        secretAccessKey: (config.mySecretAccessKey as string) || '',
+      }
+    })
+    const docClient = DynamoDBDocumentClient.from(client)
+
     const response = await docClient.send(
       new GetCommand({
         TableName: 'SightingEvents',

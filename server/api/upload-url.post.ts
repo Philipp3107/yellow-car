@@ -5,6 +5,7 @@ import { defineEventHandler, readBody, createError, type H3Event } from 'h3'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
+    const config = useRuntimeConfig()
     const body = await readBody(event)
 
     const contentType = body.contentType || 'image/jpeg'
@@ -15,23 +16,18 @@ export default defineEventHandler(async (event: H3Event) => {
     const s3Key = `uploads/${userId}/${sightingId}.${fileExtension}`
 
     const s3Client = new S3Client({
-      region: process.env.MY_REGION || 'eu-central-1',
+      region: config.myRegion || 'eu-central-1',
       credentials: {
-        accessKeyId: process.env.MY_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.MY_SECRET_ACCESS_KEY || '',
+        accessKeyId: config.myAccessKeyId || '',
+        secretAccessKey: config.mySecretAccessKey || '',
       },
     })
 
     const command = new PutObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME || 'yellow-car-uploads-bucket',
+      Bucket: config.s3BucketName || 'yellow-car-uploads-bucket',
       Key: s3Key,
       ContentType: contentType,
     })
-
-    console.log(process.env.MY_REGION)
-    console.log(process.env.MY_ACCESS_KEY_ID)
-    console.log(process.env.MY_SECRET_ACCESS_KEY)
-    console.log(process.env.S3_BUCKET_NAME)
 
     const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 })
 
