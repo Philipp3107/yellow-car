@@ -1,22 +1,16 @@
 version: 1
-applications:
-  - appRoot: frontend
-    backend:
-      phases:
-        build:
-            commands:
-              # Schreibe die Amplify-Variablen zur Build-Zeit in eine .env-Datei im Frontend-Ordner
-              - echo "MY_REGION=$MY_REGION" >> .env
-              - echo "MY_ACCESS_KEY_ID=$MY_ACCESS_KEY_ID" >> .env
-              - echo "MY_SECRET_ACCESS_KEY=$MY_SECRET_ACCESS_KEY" >> .env
-              - echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> .env
-
-              - npm install
-              - npm run build
-    artifacts:
-      baseDirectory: .output/public
-      files:
-        - '**/*'
-    cache:
-      paths:
-        - node_modules/**/*
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .output
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
