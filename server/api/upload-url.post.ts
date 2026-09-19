@@ -1,12 +1,12 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { randomUUID } from 'node:crypto'
+import { defineEventHandler, readBody, createError, type H3Event } from 'h3'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   try {
     const body = await readBody(event)
 
-    // Fallback für den Content-Type, falls das Handy keinen mitschickt
     const contentType = body.contentType || 'image/jpeg'
     const userId = body.userId || 'user123'
     const fileExtension = body.filename ? body.filename.split('.').pop() : 'jpg'

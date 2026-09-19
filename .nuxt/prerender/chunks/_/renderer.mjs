@@ -1,32 +1,14 @@
 import { createRenderer, getRequestDependencies, getPreloadLinks, getPrefetchLinks } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/vue-bundle-renderer/dist/runtime.mjs';
-import { getQuery, createError, getResponseStatusText, getResponseStatus } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/h3/dist/index.mjs';
+import { getResponseStatusText, getResponseStatus, getQuery, createError, appendResponseHeader } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/h3/dist/index.mjs';
+import { joinRelativeURL, encodePath, joinURL } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/ufo/dist/index.mjs';
+import { renderToString } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/vue/server-renderer/index.mjs';
 import { u as useRuntimeConfig, a as useStorage, d as defineRenderHandler, g as getRouteRules, b as useNitroApp } from '../nitro/nitro.mjs';
-import { joinRelativeURL, encodePath } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/ufo/dist/index.mjs';
 import { createHead as createHead$1, propsToString, renderSSRHead } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/unhead/dist/server.mjs';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { stringify, uneval } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/devalue/index.js';
-import { isRef, toValue } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/vue/index.mjs';
+import { walkResolver } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/unhead/dist/utils.mjs';
+import { isRef, toValue, hasInjectionContext, inject, getCurrentScope, ref, watchEffect, getCurrentInstance, onBeforeUnmount, onDeactivated, onActivated } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/vue/index.mjs';
 import { DeprecationsPlugin, PromisesPlugin, TemplateParamsPlugin, AliasSortingPlugin } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/unhead/dist/plugins.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/destr/dist/index.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/hookable/dist/index.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/ofetch/dist/node.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/node-mock-http/dist/index.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/unstorage/dist/index.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/unstorage/drivers/fs.mjs';
-import 'node:crypto';
-import 'node:fs/promises';
-import 'node:path';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/unstorage/drivers/fs-lite.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/unstorage/drivers/lru-cache.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/ohash/dist/index.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/klona/dist/index.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/defu/dist/defu.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/scule/dist/index.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/unctx/dist/index.mjs';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/radix3/dist/index.mjs';
-import 'node:fs';
-import 'node:url';
-import 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/pathe/dist/index.mjs';
 
 const VueResolver = (_, value) => {
   return isRef(value) ? toValue(value) : value;
@@ -46,6 +28,52 @@ function vueInstall(head) {
 }
 
 // @__NO_SIDE_EFFECTS__
+function injectHead() {
+  if (hasInjectionContext()) {
+    const instance = inject(headSymbol);
+    if (instance) {
+      return instance;
+    }
+  }
+  throw new Error("useHead() was called without provide context, ensure you call it through the setup() function.");
+}
+function useHead(input, options = {}) {
+  const head = options.head || /* @__PURE__ */ injectHead();
+  return head.ssr ? head.push(input || {}, options) : clientUseHead(head, input, options);
+}
+function clientUseHead(head, input, options = {}) {
+  const scope = getCurrentScope();
+  if (scope && !scope.active)
+    return { patch() {
+    }, dispose() {
+    }, _poll() {
+    } };
+  const deactivated = ref(false);
+  let entry;
+  watchEffect(() => {
+    const i = deactivated.value ? {} : walkResolver(input, VueResolver);
+    if (entry) {
+      entry.patch(i);
+    } else {
+      entry = head.push(i, options);
+    }
+  });
+  const vm = getCurrentInstance();
+  if (vm) {
+    onBeforeUnmount(() => {
+      entry.dispose();
+    });
+    onDeactivated(() => {
+      deactivated.value = true;
+    });
+    onActivated(() => {
+      deactivated.value = false;
+    });
+  }
+  return entry;
+}
+
+// @__NO_SIDE_EFFECTS__
 function createHead(options = {}) {
   const head = createHead$1({
     ...options,
@@ -55,7 +83,7 @@ function createHead(options = {}) {
   return head;
 }
 
-const NUXT_RUNTIME_PAYLOAD_EXTRACTION = false;
+const NUXT_PAYLOAD_EXTRACTION = true;
 
 const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"}],"link":[],"style":[],"script":[],"noscript":[]};
 
@@ -69,6 +97,10 @@ const appTeleportAttrs = {"id":"teleports"};
 
 const appId = "nuxt-app";
 
+function baseURL() {
+	
+	return useRuntimeConfig().app.baseURL;
+}
 function buildAssetsDir() {
 	
 	return useRuntimeConfig().app.buildAssetsDir;
@@ -90,7 +122,31 @@ globalThis.__publicAssetsURL = publicAssetsURL;
 const APP_ROOT_OPEN_TAG = `<${appRootTag}${propsToString(appRootAttrs)}>`;
 const APP_ROOT_CLOSE_TAG = `</${appRootTag}>`;
 // @ts-expect-error file will be produced after app build
+const getServerEntry = () => import('../build/server.mjs').then((r) => r.default || r);
+// @ts-expect-error file will be produced after app build
 const getPrecomputedDependencies = () => import('../build/client.precomputed.mjs').then((r) => r.default || r).then((r) => typeof r === "function" ? r() : r);
+
+const getSSRRenderer = lazyCachedFunction(async () => {
+	
+	const createSSRApp = await getServerEntry();
+	if (!createSSRApp) {
+		throw new Error("Server bundle is not available");
+	}
+	
+	const precomputed = await getPrecomputedDependencies();
+	
+	const renderer = createRenderer(createSSRApp, {
+		precomputed,
+		manifest: undefined,
+		renderToString: renderToString$1,
+		buildAssetsURL
+	});
+	async function renderToString$1(input, context) {
+		const html = await renderToString(input, context);
+		return APP_ROOT_OPEN_TAG + html + APP_ROOT_CLOSE_TAG;
+	}
+	return renderer;
+});
 
 const getSPARenderer = lazyCachedFunction(async () => {
 	const precomputed = await getPrecomputedDependencies();
@@ -136,21 +192,34 @@ function lazyCachedFunction(fn) {
 	};
 }
 function getRenderer(ssrContext) {
-	return getSPARenderer() ;
+	return ssrContext.noSSR ? getSPARenderer() : getSSRRenderer();
 }
+// @ts-expect-error file will be produced after app build
+const getSSRStyles = lazyCachedFunction(() => import('../build/styles.mjs').then((r) => r.default || r));
 
 const prerenderRenderingURLs = new AsyncLocalStorage() ;
-useStorage("internal:nuxt:prerender:payload") ;
+const payloadCache = useStorage("internal:nuxt:prerender:payload") ;
 useStorage("internal:nuxt:prerender:island") ;
 useStorage("internal:nuxt:prerender:island-props") ;
 
+function renderPayloadResponse(ssrContext) {
+	return {
+		body: encodeForwardSlashes(stringify(splitPayload(ssrContext).payload, ssrContext["~payloadReducers"])) ,
+		statusCode: getResponseStatus(ssrContext.event),
+		statusMessage: getResponseStatusText(ssrContext.event),
+		headers: {
+			"content-type": "application/json;charset=utf-8" ,
+			"x-powered-by": "Nuxt"
+		}
+	};
+}
 function renderPayloadJsonScript(opts) {
 	const contents = opts.data ? encodeForwardSlashes(stringify(opts.data, opts.ssrContext["~payloadReducers"])) : "";
 	const payload = {
 		"type": "application/json",
 		"innerHTML": contents,
 		"data-nuxt-data": appId,
-		"data-ssr": false
+		"data-ssr": !(opts.ssrContext.noSSR)
 	};
 	{
 		payload.id = "__NUXT_DATA__";
@@ -165,12 +234,31 @@ function renderPayloadJsonScript(opts) {
 function encodeForwardSlashes(str) {
 	return str.replaceAll("/", "\\u002F");
 }
+function splitPayload(ssrContext) {
+	const { data, prerenderedAt, ...initial } = ssrContext.payload;
+	return {
+		initial: {
+			...initial,
+			prerenderedAt
+		},
+		payload: {
+			data,
+			prerenderedAt
+		}
+	};
+}
 
 const unheadOptions = {
   disableDefaults: true,
   disableCapoSorting: false,
   plugins: [DeprecationsPlugin, PromisesPlugin, TemplateParamsPlugin, AliasSortingPlugin],
 };
+
+const PRERENDER_NO_SSR_ROUTES = new Set([
+	"/index.html",
+	"/200.html",
+	"/404.html"
+]);
 
 function encodeEventPath(path) {
 	const queryIndex = path.indexOf("?");
@@ -185,7 +273,7 @@ function createSSRContext(event) {
 		url,
 		event,
 		runtimeConfig: useRuntimeConfig(event),
-		noSSR: true,
+		noSSR: event.context.nuxt?.noSSR || (PRERENDER_NO_SSR_ROUTES.has(url) ),
 		head: createHead(unheadOptions),
 		error: false,
 		nuxt: undefined,
@@ -204,7 +292,22 @@ function setSSRError(ssrContext, error) {
 	ssrContext.url = error.url;
 }
 
+async function renderInlineStyles(usedModules) {
+	const styleMap = await getSSRStyles();
+	const inlinedStyles = new Set();
+	for (const mod of usedModules) {
+		if (mod in styleMap && styleMap[mod]) {
+			for (const style of await styleMap[mod]()) {
+				inlinedStyles.add(style);
+			}
+		}
+	}
+	return Array.from(inlinedStyles).map((style) => ({ innerHTML: style }));
+}
+
 const renderSSRHeadOptions = {"omitLineBreaks":false};
+
+const entryIds = ["node_modules/nuxt/dist/app/entry.js"];
 
 // @ts-expect-error private property consumed by vite-generated url helpers
 globalThis.__buildAssetsURL = buildAssetsURL;
@@ -213,6 +316,9 @@ globalThis.__publicAssetsURL = publicAssetsURL;
 const HAS_APP_TELEPORTS = !!(appTeleportAttrs.id);
 const APP_TELEPORT_OPEN_TAG = HAS_APP_TELEPORTS ? `<${appTeleportTag}${propsToString(appTeleportAttrs)}>` : "";
 const APP_TELEPORT_CLOSE_TAG = HAS_APP_TELEPORTS ? `</${appTeleportTag}>` : "";
+const PAYLOAD_URL_RE = /^[^?]*\/_payload.json(?:\?.*)?$/ ;
+const PAYLOAD_FILENAME = "_payload.json" ;
+const PAYLOAD_BUILD_ID_PARAM = "_b";
 const handler = defineRenderHandler((event) => {
 	
 	const ssrError = event.path.startsWith("/__nuxt_error") ? getQuery(event) : null;
@@ -264,9 +370,26 @@ async function renderRoute(event, ssrError) {
 		ssrContext.noSSR = true;
 	}
 	
-	!ssrContext.noSSR && (NUXT_RUNTIME_PAYLOAD_EXTRACTION);
+	const _PAYLOAD_EXTRACTION = !ssrContext.noSSR && (NUXT_PAYLOAD_EXTRACTION);
+	const isRenderingPayload = (_PAYLOAD_EXTRACTION || false) && PAYLOAD_URL_RE.test(ssrContext.url);
+	if (isRenderingPayload) {
+		const payloadURL = new URL(ssrContext.url, "http://localhost");
+		const url = payloadURL.pathname.slice(0, -`/${PAYLOAD_FILENAME}`.length) || "/";
+		payloadURL.searchParams.delete(PAYLOAD_BUILD_ID_PARAM);
+		ssrContext.url = url + payloadURL.search;
+		event._path = event.node.req.url = ssrContext.url;
+		if (await payloadCache.hasItem(ssrContext.url + ".json")) {
+			return payloadCache.getItem(ssrContext.url + ".json");
+		}
+	}
+	const payloadURL = _PAYLOAD_EXTRACTION ? buildPayloadURL(ssrContext) : undefined;
 	
-	const renderer = await getRenderer();
+	const renderer = await getRenderer(ssrContext);
+	{
+		for (const id of entryIds) {
+			ssrContext.modules.add(id);
+		}
+	}
 	const _rendered = await renderer.renderToString(ssrContext).catch(async (error) => {
 		
 		
@@ -280,7 +403,7 @@ async function renderRoute(event, ssrError) {
 	});
 	
 	
-	const inlinedStyles = [];
+	const inlinedStyles = !ssrContext["~renderResponse"] && !ssrContext._renderResponse && !isRenderingPayload ? await renderInlineStyles(ssrContext.modules ?? []) : [];
 	await ssrContext.nuxt?.hooks.callHook("app:rendered", {
 		ssrContext,
 		renderResult: _rendered
@@ -293,9 +416,32 @@ async function renderRoute(event, ssrError) {
 	if (ssrContext.payload?.error && !ssrError) {
 		throw ssrContext.payload.error;
 	}
+	
+	if (isRenderingPayload) {
+		const response = renderPayloadResponse(ssrContext);
+		{
+			await payloadCache.setItem(ssrContext.url + ".json", response);
+		}
+		return response;
+	}
+	if (_PAYLOAD_EXTRACTION && true) {
+		
+		appendResponseHeader(event, "x-nitro-prerender", joinURL(ssrContext.url.replace(/\?.*$/, ""), PAYLOAD_FILENAME));
+		
+		await payloadCache.setItem((ssrContext.url === "/" ? "/" : ssrContext.url.replace(/\/$/, "")) + ".json", renderPayloadResponse(ssrContext));
+	}
 	const NO_SCRIPTS = routeOptions.noScripts;
 	
 	const { styles, scripts } = getRequestDependencies(ssrContext, renderer.rendererContext);
+	
+	if (_PAYLOAD_EXTRACTION && !NO_SCRIPTS) {
+		ssrContext.head.push({ link: [{
+			rel: "preload",
+			as: "fetch",
+			crossorigin: "anonymous",
+			href: payloadURL
+		} ] }, headEntryOptions);
+	}
 	
 	if (inlinedStyles.length) {
 		ssrContext.head.push({ style: inlinedStyles });
@@ -322,7 +468,11 @@ async function renderRoute(event, ssrError) {
 		const stylesheetHrefs = new Set(link.map((l) => l.href));
 		ssrContext.head.push({ link: [...getPreloadLinks(ssrContext, renderer.rendererContext, dependencyOptions), ...getPrefetchLinks(ssrContext, renderer.rendererContext, dependencyOptions)].filter((l) => !stylesheetHrefs.has(l.href)) }, headEntryOptions);
 		
-		ssrContext.head.push({ script: renderPayloadJsonScript({
+		ssrContext.head.push({ script: _PAYLOAD_EXTRACTION ? renderPayloadJsonScript({
+			ssrContext,
+			data: splitPayload(ssrContext).initial,
+			src: payloadURL
+		})  : renderPayloadJsonScript({
 			ssrContext,
 			data: ssrContext.payload
 		})  }, {
@@ -368,6 +518,13 @@ async function renderRoute(event, ssrError) {
 		}
 	};
 }
+function buildPayloadURL(ssrContext) {
+	const url = new URL(ssrContext.url, "http://localhost");
+	const baseURL = ssrContext.runtimeConfig.app.cdnURL || ssrContext.runtimeConfig.app.baseURL;
+	const payloadURL = joinURL(baseURL, url.pathname, PAYLOAD_FILENAME);
+	url.searchParams.set(PAYLOAD_BUILD_ID_PARAM, ssrContext.runtimeConfig.app.buildId);
+	return payloadURL + url.search;
+}
 function normalizeChunks(chunks) {
 	const result = [];
 	for (const _chunk of chunks) {
@@ -391,5 +548,10 @@ function renderHTMLDocument(html) {
 	return "<!DOCTYPE html>" + `<html${joinAttrs(html.htmlAttrs)}>` + `<head>${joinTags(html.head)}</head>` + `<body${joinAttrs(html.bodyAttrs)}>${joinTags(html.bodyPrepend)}${joinTags(html.body)}${joinTags(html.bodyAppend)}</body>` + "</html>";
 }
 
-export { handler as default };
+const renderer = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: handler
+}, Symbol.toStringTag, { value: 'Module' }));
+
+export { baseURL as b, headSymbol as h, renderer as r, useHead as u };
 //# sourceMappingURL=renderer.mjs.map

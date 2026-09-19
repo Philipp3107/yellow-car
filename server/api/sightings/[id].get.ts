@@ -1,10 +1,11 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { defineEventHandler, readBody, createError, getRouterParam, type H3Event } from 'h3'
 
 const client = new DynamoDBClient({ region: process.env.AWS_REGION || 'eu-central-1' })
 const docClient = DynamoDBDocumentClient.from(client)
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event: H3Event) => {
   const sightingId = getRouterParam(event, 'id')
 
   if (!sightingId) {

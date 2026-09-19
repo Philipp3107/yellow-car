@@ -667,7 +667,7 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/",
-    "buildId": "75b484a0-5ebe-4e99-a3ea-c9cf03ee5eda",
+    "buildId": "aa4394c7-5374-4596-aec0-604950dd03aa",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
@@ -1112,7 +1112,7 @@ const _SxA8c9 = defineEventHandler(() => {});
 
 const _lazy_6pMrNn = () => import('../routes/api/sightings/_id_.get.mjs');
 const _lazy_cXLW_d = () => import('../routes/api/upload-url.post.mjs');
-const _lazy_jtAXDK = () => import('../_/renderer.mjs');
+const _lazy_jtAXDK = () => import('../_/renderer.mjs').then(function (n) { return n.r; });
 
 const handlers = [
   { route: '', handler: _hOLEQ8, lazy: false, middleware: true, method: undefined },

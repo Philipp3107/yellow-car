@@ -1,6 +1,6 @@
-import { defineEventHandler, getRouterParam, createError } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/h3/dist/index.mjs';
 import { DynamoDBClient } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/@aws-sdk/client-dynamodb/dist-cjs/index.js';
 import { GetCommand, DynamoDBDocumentClient } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/@aws-sdk/lib-dynamodb/dist-cjs/index.js';
+import { defineEventHandler, getRouterParam, createError } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/h3/dist/index.mjs';
 
 const client = new DynamoDBClient({ region: process.env.AWS_REGION || "eu-central-1" });
 const docClient = DynamoDBDocumentClient.from(client);

@@ -1,7 +1,7 @@
-import { defineEventHandler, readBody, createError } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/h3/dist/index.mjs';
 import { S3Client, PutObjectCommand } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/@aws-sdk/client-s3/dist-cjs/index.js';
 import { getSignedUrl } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/@aws-sdk/s3-request-presigner/dist-cjs/index.js';
 import { randomUUID } from 'node:crypto';
+import { defineEventHandler, readBody, createError } from 'file:///Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/h3/dist/index.mjs';
 
 const uploadUrl_post = defineEventHandler(async (event) => {
   try {
