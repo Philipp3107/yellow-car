@@ -7,7 +7,12 @@ export default defineNuxtConfig({
   experimental: {
     appManifest: false,
   },
-  // Entferne hier den typeCheck-Block, falls vorhanden
+  runtimeConfig: {
+    myAccessKeyId: process.env.MY_ACCESS_KEY_ID,
+    mySecretAccessKey: process.env.MY_SECRET_ACCESS_KEY,
+    myRegion: process.env.MY_REGION,
+    s3BucketName: process.env.S3_BUCKET_NAME,
+  },
   vite: {
     plugins: [
       tailwindcss(),
