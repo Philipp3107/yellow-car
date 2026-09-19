@@ -4,7 +4,11 @@ import { getSignedUrl } from 'file:///Users/philippkotte/Developer/aws/hannen-ye
 import { randomUUID } from 'node:crypto';
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "eu-central-1"
+  region: process.env.MY_REGION || "eu-central-1",
+  credentials: {
+    accessKeyId: process.env.MY_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.MY_SECRET_ACCESS_KEY || ""
+  }
 });
 const uploadUrl_post = defineEventHandler(async (event) => {
   const body = await readBody(event);

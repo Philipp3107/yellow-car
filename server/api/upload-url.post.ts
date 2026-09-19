@@ -3,7 +3,11 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { randomUUID } from 'node:crypto'
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'eu-central-1',
+  region: process.env.MY_REGION || 'eu-central-1',
+  credentials: {
+    accessKeyId: process.env.MY_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.MY_SECRET_ACCESS_KEY || '',
+  },
 })
 
 export default defineEventHandler(async (event) => {
@@ -12,7 +16,6 @@ export default defineEventHandler(async (event) => {
   const fileExtension = body.filename ? body.filename.split('.').pop() : 'jpg'
 
   const sightingId = randomUUID()
-  // Der Pfad entspricht deinem Lambda-Pattern: uploads/{userId}/{filename}
   const s3Key = `uploads/${userId}/${sightingId}.${fileExtension}`
 
   const command = new PutObjectCommand({
