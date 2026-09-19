@@ -23,6 +23,10 @@ const uploadUrl_post = defineEventHandler(async (event) => {
       Key: s3Key,
       ContentType: contentType
     });
+    console.log(process.env.MY_REGION);
+    console.log(process.env.MY_ACCESS_KEY_ID);
+    console.log(process.env.MY_SECRET_ACCESS_KEY);
+    console.log(process.env.S3_BUCKET_NAME);
     const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 });
     return {
       uploadUrl,
