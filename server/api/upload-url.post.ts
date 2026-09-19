@@ -8,6 +8,13 @@ export default defineEventHandler(async (event: H3Event) => {
     const config = useRuntimeConfig()
     const body = await readBody(event)
 
+    console.log("--- DEBUG RUNTIMECONFIG ---")
+    console.log("myAccessKeyId:", config.myAccessKeyId ? `Vorhanden (${(config.myAccessKeyId as string).substring(0, 4)}...)` : "LEER/UNDEFINED")
+    console.log("mySecretAccessKey:", config.mySecretAccessKey ? "Vorhanden" : "LEER/UNDEFINED")
+    console.log("myRegion:", config.myRegion)
+    console.log("s3BucketName:", config.s3BucketName)
+    console.log("----------------------------")
+
     const contentType = body.contentType || 'image/jpeg'
     const userId = body.userId || 'user123'
     const fileExtension = body.filename ? body.filename.split('.').pop() : 'jpg'
