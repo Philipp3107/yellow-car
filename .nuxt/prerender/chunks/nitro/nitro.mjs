@@ -667,7 +667,7 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/",
-    "buildId": "dc5445cd-55c5-4b24-8942-f4ff5f855949",
+    "buildId": "75b484a0-5ebe-4e99-a3ea-c9cf03ee5eda",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
@@ -676,16 +676,6 @@ const _inlineRuntimeConfig = {
     "routeRules": {
       "/__nuxt_error": {
         "cache": false
-      },
-      "/_nuxt/builds/meta/**": {
-        "headers": {
-          "cache-control": "public, max-age=31536000, immutable"
-        }
-      },
-      "/_nuxt/builds/**": {
-        "headers": {
-          "cache-control": "public, max-age=1, immutable"
-        }
       },
       "/_nuxt/**": {
         "headers": {
@@ -1036,7 +1026,7 @@ function readAsset (id) {
   return promises.readFile(resolve$1(serverDir, assets[id].path))
 }
 
-const publicAssetBases = {"/_nuxt/builds/meta/":{"maxAge":31536000},"/_nuxt/builds/":{"maxAge":1},"/_nuxt/":{"maxAge":31536000}};
+const publicAssetBases = {"/_nuxt/":{"maxAge":31536000}};
 
 function isPublicAssetURL(id = '') {
   if (assets[id]) {
