@@ -11,6 +11,14 @@ import { NuxtModule, ModuleDependencyMeta } from '@nuxt/schema'
       cdnURL: string,
    },
 
+   myAccessKeyId: string,
+
+   mySecretAccessKey: string,
+
+   myRegion: string,
+
+   s3BucketName: string,
+
    nitro: {
       envPrefix: string,
    },

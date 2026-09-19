@@ -61,6 +61,8 @@ async function submitSighting() {
     })
 
     if (!s3Response.ok) {
+        console.log(s3Response)
+        console.log(await s3Response.text())
       throw new Error('Upload zu S3 fehlgeschlagen.')
     }
 

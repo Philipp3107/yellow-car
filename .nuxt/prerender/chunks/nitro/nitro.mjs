@@ -667,7 +667,7 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/",
-    "buildId": "e4207452-cdf7-4c10-95d6-81c3ec823a33",
+    "buildId": "fe0c0071-cfb6-4c4d-919e-77db1f4e4f02",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
@@ -684,7 +684,11 @@ const _inlineRuntimeConfig = {
       }
     }
   },
-  "public": {}
+  "public": {},
+  "myAccessKeyId": "",
+  "mySecretAccessKey": "",
+  "myRegion": "",
+  "s3BucketName": ""
 };
 const envOptions = {
   prefix: "NITRO_",
