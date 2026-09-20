@@ -1,11 +1,11 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb'
-import { defineEventHandler, readBody, createError, getRouterParam, type H3Event } from 'h3'
+import { defineEventHandler, readBody, createError, getRouterParam, getQuery, type H3Event } from 'h3'
 
 export default defineEventHandler(async (event: H3Event) => {
   const config = useRuntimeConfig()
   const sightingId = getRouterParam(event, 'id')
-
+  const userId = (getQuery(event).userId as string) || 'user123'
 
   if (!sightingId) {
     throw createError({ statusCode: 400, statusMessage: 'Missing sighting ID' })
@@ -24,7 +24,8 @@ export default defineEventHandler(async (event: H3Event) => {
     const response = await docClient.send(
       new GetCommand({
         TableName: 'SightingEvents',
-        Key: { eventId: sightingId },
+        // Tabelle hat userId (Hash) + eventId (Range) als Primärschlüssel
+        Key: { userId, eventId: sightingId },
       })
     )
 

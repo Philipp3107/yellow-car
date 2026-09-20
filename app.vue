@@ -71,7 +71,7 @@ async function submitSighting() {
     isAnalyzing.value = true
 
     // 3. Polling starten bis Lambda + Bedrock in DynamoDB geschrieben hat
-    await pollForResults(newSightingId)
+    await pollForResults(newSightingId, 'user123')
 
   } catch (err: any) {
     errorMessage.value = err.message || 'Ein Fehler ist aufgetreten.'
@@ -80,15 +80,18 @@ async function submitSighting() {
   }
 }
 
-async function pollForResults(id: string) {
-  const maxAttempts = 15
+async function pollForResults(id: string, userId: string) {
+  // grosszuegig wegen JVM Lambda Cold Start + Bedrock Latenz
+  const maxAttempts = 30
   let attempts = 0
 
   const interval = setInterval(async () => {
     attempts++
 
     try {
-      const data = await $fetch<{ status: string; result?: VehicleAnalysis }>(`/api/sightings/${id}`)
+      const data = await $fetch<{ status: string; result?: VehicleAnalysis }>(`/api/sightings/${id}`, {
+        query: { userId },
+      })
 
       if (data.status === 'COMPLETED' && data.result) {
         analysisResult.value = data.result
