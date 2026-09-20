@@ -4,16 +4,10 @@ import { randomUUID } from 'node:crypto'
 import { defineEventHandler, readBody, createError, type H3Event } from 'h3'
 
 export default defineEventHandler(async (event: H3Event) => {
-  try {
-    const config = useRuntimeConfig()
-    const body = await readBody(event)
+  const config = useRuntimeConfig()
 
-    console.log("--- DEBUG RUNTIMECONFIG ---")
-    console.log("myAccessKeyId:", config.myAccessKeyId ? `Vorhanden (${(config.myAccessKeyId as string).substring(0, 4)}...)` : "LEER/UNDEFINED")
-    console.log("mySecretAccessKey:", config.mySecretAccessKey ? "Vorhanden" : "LEER/UNDEFINED")
-    console.log("myRegion:", config.myRegion)
-    console.log("s3BucketName:", config.s3BucketName)
-    console.log("----------------------------")
+  try {
+    const body = await readBody(event)
 
     const contentType = body.contentType || 'image/jpeg'
     const userId = body.userId || 'user123'
@@ -22,16 +16,22 @@ export default defineEventHandler(async (event: H3Event) => {
     const sightingId = randomUUID()
     const s3Key = `uploads/${userId}/${sightingId}.${fileExtension}`
 
+    // Holt den Key entweder aus Nuxt runtimeConfig oder direkt aus process.env
+    const accessKeyId = (config.myAccessKeyId as string) || process.env.MY_ACCESS_KEY_ID || process.env.NUXT_MY_ACCESS_KEY_ID || ''
+    const secretAccessKey = (config.mySecretAccessKey as string) || process.env.MY_SECRET_ACCESS_KEY || process.env.NUXT_MY_SECRET_ACCESS_KEY || ''
+    const region = (config.myRegion as string) || process.env.MY_REGION || process.env.AWS_REGION || 'eu-central-1'
+    const bucketName = (config.s3BucketName as string) || process.env.S3_BUCKET_NAME || 'yellow-car-uploads-bucket'
+
     const s3Client = new S3Client({
-      region: config.myRegion || 'eu-central-1',
+      region,
       credentials: {
-        accessKeyId: config.myAccessKeyId || '',
-        secretAccessKey: config.mySecretAccessKey || '',
+        accessKeyId,
+        secretAccessKey,
       },
     })
 
     const command = new PutObjectCommand({
-      Bucket: config.s3BucketName || 'yellow-car-uploads-bucket',
+      Bucket: bucketName,
       Key: s3Key,
       ContentType: contentType,
     })
@@ -45,9 +45,13 @@ export default defineEventHandler(async (event: H3Event) => {
     }
   } catch (err: any) {
     console.error("Fehler beim Generieren der Presigned URL:", err)
-    throw createError({
-      statusCode: 500,
-      statusMessage: err.message || 'Interner Serverfehler',
-    })
+    raiseError(err)
   }
 })
+
+function raiseError(err: any) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: err.message || 'Interner Serverfehler',
+  })
+}
