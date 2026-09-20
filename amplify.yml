@@ -6,13 +6,9 @@ frontend:
         - npm ci
     build:
       commands:
-        - echo "NUXT_MY_ACCESS_KEY_ID=$NUXT_MY_ACCESS_KEY_ID" >> .env
-        - echo "NUXT_MY_SECRET_ACCESS_KEY=$NUXT_MY_SECRET_ACCESS_KEY" >> .env
-        - echo "NUXT_MY_REGION=$NUXT_MY_REGION" >> .env
-        - echo "NUXT_S3_BUCKET_NAME=$NUXT_S3_BUCKET_NAME" >> .env
         - npm run build
   artifacts:
-    baseDirectory: .output
+    baseDirectory: .amplify-hosting
     files:
       - '**/*'
   cache:

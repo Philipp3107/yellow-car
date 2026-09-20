@@ -6,13 +6,14 @@ export default defineEventHandler(async (event: H3Event) => {
   const config = useRuntimeConfig()
   const sightingId = getRouterParam(event, 'id')
 
+
   if (!sightingId) {
     throw createError({ statusCode: 400, statusMessage: 'Missing sighting ID' })
   }
 
   try {
     const client = new DynamoDBClient({
-      region: (config.awsRegion as string) || 'eu-central-1',
+      region: (config.myRegion as string) || 'eu-central-1',
       credentials: {
         accessKeyId: (config.myAccessKeyId as string) || '',
         secretAccessKey: (config.mySecretAccessKey as string) || '',

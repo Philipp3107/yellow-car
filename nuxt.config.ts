@@ -8,12 +8,10 @@ export default defineNuxtConfig({
     appManifest: false,
   },
   runtimeConfig: {
-    // Leer lassen! Nuxt holt sich das zur Laufzeit über das NUXT_-Präfix
-    myAccessKeyId: '',
-    mySecretAccessKey: '',
-    myRegion: '',
-    s3BucketName: '',
-    awsRegion: '', // <--- Neu für DynamoDB
+    myAccessKeyId: process.env.NUXT_MY_ACCESS_KEY_ID || process.env.MY_ACCESS_KEY_ID,
+    mySecretAccessKey: process.env.NUXT_MY_SECRET_ACCESS_KEY || process.env.MY_SECRET_ACCESS_KEY,
+    myRegion: process.env.NUXT_MY_REGION || process.env.MY_REGION || 'eu-central-1',
+    s3BucketName: process.env.NUXT_S3_BUCKET_NAME || process.env.S3_BUCKET_NAME,
   },
   vite: {
     plugins: [
