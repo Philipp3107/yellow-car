@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 interface VehicleAnalysis {
   isCar: boolean
@@ -9,6 +9,14 @@ interface VehicleAnalysis {
   description: string
 }
 
+interface LeaderboardEntry {
+  userId: string
+  displayName: string
+  totalPoints: number
+}
+
+const DEVICE_ID_STORAGE_KEY = 'yellow-car-device-id'
+
 const file = ref<File | null>(null)
 const previewUrl = ref<string | null>(null)
 const isUploading = ref(false)
@@ -17,6 +25,42 @@ const errorMessage = ref<string | null>(null)
 
 const sightingId = ref<string | null>(null)
 const analysisResult = ref<VehicleAnalysis | null>(null)
+
+const userId = ref<string | null>(null)
+const displayName = ref<string | null>(null)
+const leaderboard = ref<LeaderboardEntry[]>([])
+
+function getOrCreateDeviceId(): string {
+  let deviceId = localStorage.getItem(DEVICE_ID_STORAGE_KEY)
+  if (!deviceId) {
+    deviceId = crypto.randomUUID()
+    localStorage.setItem(DEVICE_ID_STORAGE_KEY, deviceId)
+  }
+  return deviceId
+}
+
+async function identifyUser() {
+  const deviceId = getOrCreateDeviceId()
+  const user = await $fetch<{ userId: string; displayName: string }>('/api/auth/identify', {
+    method: 'POST',
+    body: { deviceId },
+  })
+  userId.value = user.userId
+  displayName.value = user.displayName
+}
+
+async function loadLeaderboard() {
+  leaderboard.value = await $fetch<LeaderboardEntry[]>('/api/users')
+}
+
+onMounted(async () => {
+  try {
+    await identifyUser()
+    await loadLeaderboard()
+  } catch (err) {
+    console.error('Fehler beim Identifizieren des Nutzers:', err)
+  }
+})
 
 function handleFileSelect(event: Event) {
   const target = event.target as HTMLInputElement
@@ -33,6 +77,10 @@ function handleFileSelect(event: Event) {
 
 async function submitSighting() {
   if (!file.value) return
+  if (!userId.value) {
+    errorMessage.value = 'Nutzer wurde noch nicht erkannt, bitte kurz warten und erneut versuchen.'
+    return
+  }
 
   isUploading.value = true
   errorMessage.value = null
@@ -45,7 +93,7 @@ async function submitSighting() {
       body: {
         filename: file.value.name,
         contentType: file.value.type,
-        userId: 'user123',
+        userId: userId.value,
       },
     })
 
@@ -71,7 +119,8 @@ async function submitSighting() {
     isAnalyzing.value = true
 
     // 3. Polling starten bis Lambda + Bedrock in DynamoDB geschrieben hat
-    await pollForResults(newSightingId, 'user123')
+    await pollForResults(newSightingId, userId.value)
+    await loadLeaderboard()
 
   } catch (err: any) {
     errorMessage.value = err.message || 'Ein Fehler ist aufgetreten.'
@@ -119,7 +168,24 @@ async function pollForResults(id: string, userId: string) {
           <span>🟡</span> Gelbe Autos Detector
         </h1>
         <p class="text-xs text-slate-400 mt-1">Amazon Nova Lite Vision Pipeline</p>
+        <p v-if="displayName" class="text-xs text-slate-500 mt-1">Angemeldet als <span class="text-yellow-400 font-semibold">{{ displayName }}</span></p>
       </header>
+
+      <!-- Leaderboard -->
+      <div v-if="leaderboard.length" class="mb-6 bg-slate-950/50 border border-slate-800 rounded-2xl p-4">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Punktestand</p>
+        <div class="space-y-2">
+          <div
+            v-for="entry in leaderboard"
+            :key="entry.userId"
+            class="flex items-center justify-between text-sm"
+            :class="entry.userId === userId ? 'text-yellow-400 font-bold' : 'text-slate-300'"
+          >
+            <span>{{ entry.displayName }}</span>
+            <span>{{ entry.totalPoints }} Punkte</span>
+          </div>
+        </div>
+      </div>
 
       <!-- Upload Zone -->
       <div class="mb-6">
