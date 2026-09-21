@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import Menu from './components/menu/Menu.vue'
+import Gallery from './components/Gallery.vue'
 
 interface VehicleAnalysis {
   isCar: boolean
@@ -16,6 +18,8 @@ interface LeaderboardEntry {
 }
 
 const DEVICE_ID_STORAGE_KEY = 'yellow-car-device-id'
+
+const activeView = ref(0)
 
 const file = ref<File | null>(null)
 const previewUrl = ref<string | null>(null)
@@ -159,14 +163,15 @@ async function pollForResults(id: string, userId: string) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 font-sans">
+  <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 pb-28 font-sans">
+
     <main class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+
 
       <!-- Header -->
       <header class="text-center mb-6">
         <h1 class="text-3xl font-black text-yellow-400 tracking-tight flex items-center justify-center gap-2">
-          <span>🟡</span> Gelbe Autos Detector
-        </h1>
+            Gelbe Autos Detector</h1>
         <p class="text-xs text-slate-400 mt-1">Amazon Nova Lite Vision Pipeline</p>
         <p v-if="displayName" class="text-xs text-slate-500 mt-1">Angemeldet als <span class="text-yellow-400 font-semibold">{{ displayName }}</span></p>
       </header>
@@ -187,6 +192,7 @@ async function pollForResults(id: string, userId: string) {
         </div>
       </div>
 
+      <template v-if="activeView === 0">
       <!-- Upload Zone -->
       <div class="mb-6">
         <label
@@ -201,7 +207,6 @@ async function pollForResults(id: string, userId: string) {
           <div v-else class="flex flex-col items-center justify-center p-6 text-center">
             <span class="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</span>
             <p class="text-sm font-semibold text-slate-300">Foto aufnehmen oder auswählen</p>
-            <p class="text-xs text-slate-500 mt-1">JPG, PNG oder HEIC</p>
           </div>
 
           <input
@@ -224,7 +229,7 @@ async function pollForResults(id: string, userId: string) {
         <span>
           <template v-if="isUploading">Upload zu S3...</template>
           <template v-else-if="isAnalyzing">Nova AI analysiert Bild...</template>
-          <template v-else>Sighting melden 🚀</template>
+          <template v-else>Sighting melden</template>
         </span>
       </button>
 
@@ -268,7 +273,14 @@ async function pollForResults(id: string, userId: string) {
           "{{ analysisResult.description }}"
         </p>
       </div>
+      </template>
+
+      <Gallery v-else :leaderboard="leaderboard" />
 
     </main>
+  </div>
+
+  <div class="fixed bottom-6 left-0 right-0 flex justify-center z-50">
+    <Menu v-model="activeView" />
   </div>
 </template>
