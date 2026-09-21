@@ -33,7 +33,8 @@ const analysisResult = ref<VehicleAnalysis | null>(null)
 const userId = ref<string | null>(null)
 const displayName = ref<string | null>(null)
 const leaderboard = ref<LeaderboardEntry[]>([])
-const pushStatus = ref<'idle' | 'unsupported' | 'enabled' | 'denied'>('idle')
+const pushStatus = ref<'idle' | 'unsupported' | 'enabled' | 'denied' | 'error'>('idle')
+const pushErrorDetail = ref<string | null>(null)
 
 function getOrCreateDeviceId(): string {
   let deviceId = localStorage.getItem(DEVICE_ID_STORAGE_KEY)
@@ -71,6 +72,22 @@ async function enablePushNotifications() {
     return
   }
 
+  // Auf iOS funktioniert Web Push nur, wenn die Seite als Home-Bildschirm-App geoeffnet wurde
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone === true
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent)
+  if (isIos && !isStandalone) {
+    pushStatus.value = 'error'
+    pushErrorDetail.value = 'Bitte die App erst zum Home-Bildschirm hinzufügen und von dort aus öffnen.'
+    return
+  }
+
+  const config = useRuntimeConfig()
+  if (!config.public.vapidPublicKey) {
+    pushStatus.value = 'error'
+    pushErrorDetail.value = 'VAPID Public Key ist nicht konfiguriert (NUXT_VAPID_PUBLIC_KEY in Amplify prüfen).'
+    return
+  }
+
   try {
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') {
@@ -79,7 +96,7 @@ async function enablePushNotifications() {
     }
 
     const registration = await navigator.serviceWorker.register('/sw.js')
-    const config = useRuntimeConfig()
+    await navigator.serviceWorker.ready
 
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
@@ -92,9 +109,10 @@ async function enablePushNotifications() {
     })
 
     pushStatus.value = 'enabled'
-  } catch (err) {
+  } catch (err: any) {
     console.error('Fehler beim Aktivieren der Benachrichtigungen:', err)
-    pushStatus.value = 'denied'
+    pushStatus.value = 'error'
+    pushErrorDetail.value = err?.message || String(err)
   }
 }
 
@@ -225,6 +243,7 @@ async function pollForResults(id: string, userId: string) {
         <p v-else class="mt-3 text-xs text-yellow-400">🔔 Benachrichtigungen aktiv</p>
         <p v-if="pushStatus === 'unsupported'" class="text-xs text-slate-500 mt-1">Dein Browser unterstützt keine Push-Benachrichtigungen.</p>
         <p v-if="pushStatus === 'denied'" class="text-xs text-slate-500 mt-1">Berechtigung wurde nicht erteilt.</p>
+        <p v-if="pushStatus === 'error'" class="text-xs text-rose-400 mt-1">{{ pushErrorDetail }}</p>
       </header>
 
       <!-- Leaderboard -->
