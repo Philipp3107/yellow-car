@@ -6,13 +6,18 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   app: {
     head: {
+      title: 'Gelbe Autos Detector',
       viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
       meta: [
         { name: 'theme-color', content: '#020617' },
+        { name: 'apple-mobile-web-app-title', content: 'Gelbe Autos' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'apple-touch-icon', href: '/favicon.svg' },
+        // iOS ignoriert SVG fuer das Home-Bildschirm-Icon, deshalb hier PNG
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
       ],
     },
   },

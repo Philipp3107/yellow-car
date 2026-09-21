@@ -6,8 +6,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title || '🟡 Gelbe Autos', {
       body: payload.body || 'Es gibt ein neues Update!',
-      icon: '/favicon.svg',
-      badge: '/favicon.svg',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
       data: payload.url || '/',
     }),
   )
