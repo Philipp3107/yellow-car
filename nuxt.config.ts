@@ -20,6 +20,14 @@ export default defineNuxtConfig({
     mySecretAccessKey: process.env.NUXT_MY_SECRET_ACCESS_KEY || process.env.MY_SECRET_ACCESS_KEY,
     myRegion: process.env.NUXT_MY_REGION || process.env.MY_REGION || 'eu-central-1',
     s3BucketName: process.env.NUXT_S3_BUCKET_NAME || process.env.S3_BUCKET_NAME,
+    vapidPublicKey: process.env.NUXT_VAPID_PUBLIC_KEY,
+    vapidPrivateKey: process.env.NUXT_VAPID_PRIVATE_KEY,
+    vapidSubject: process.env.NUXT_VAPID_SUBJECT || 'mailto:admin@example.com',
+    // Teilt Lambda und Nuxt einen Wert, damit /api/push/notify nicht von aussen missbraucht werden kann
+    pushSecret: process.env.NUXT_PUSH_SECRET,
+    public: {
+      vapidPublicKey: process.env.NUXT_VAPID_PUBLIC_KEY,
+    },
   },
   vite: {
     plugins: [

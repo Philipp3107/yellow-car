@@ -33,6 +33,7 @@ const analysisResult = ref<VehicleAnalysis | null>(null)
 const userId = ref<string | null>(null)
 const displayName = ref<string | null>(null)
 const leaderboard = ref<LeaderboardEntry[]>([])
+const pushStatus = ref<'idle' | 'unsupported' | 'enabled' | 'denied'>('idle')
 
 function getOrCreateDeviceId(): string {
   let deviceId = localStorage.getItem(DEVICE_ID_STORAGE_KEY)
@@ -55,6 +56,46 @@ async function identifyUser() {
 
 async function loadLeaderboard() {
   leaderboard.value = await $fetch<LeaderboardEntry[]>('/api/users')
+}
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = atob(base64)
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)))
+}
+
+async function enablePushNotifications() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    pushStatus.value = 'unsupported'
+    return
+  }
+
+  try {
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') {
+      pushStatus.value = 'denied'
+      return
+    }
+
+    const registration = await navigator.serviceWorker.register('/sw.js')
+    const config = useRuntimeConfig()
+
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(config.public.vapidPublicKey as string),
+    })
+
+    await $fetch('/api/push/subscribe', {
+      method: 'POST',
+      body: { deviceId: userId.value, subscription },
+    })
+
+    pushStatus.value = 'enabled'
+  } catch (err) {
+    console.error('Fehler beim Aktivieren der Benachrichtigungen:', err)
+    pushStatus.value = 'denied'
+  }
 }
 
 onMounted(async () => {
@@ -174,6 +215,16 @@ async function pollForResults(id: string, userId: string) {
             Gelbe Autos Detector</h1>
         <p class="text-xs text-slate-400 mt-1">Amazon Nova Lite Vision Pipeline</p>
         <p v-if="displayName" class="text-xs text-slate-500 mt-1">Angemeldet als <span class="text-yellow-400 font-semibold">{{ displayName }}</span></p>
+        <button
+          v-if="pushStatus !== 'enabled'"
+          class="mt-3 text-xs px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-yellow-400 hover:text-yellow-400 transition-colors"
+          @click="enablePushNotifications"
+        >
+          🔔 Benachrichtigungen aktivieren
+        </button>
+        <p v-else class="mt-3 text-xs text-yellow-400">🔔 Benachrichtigungen aktiv</p>
+        <p v-if="pushStatus === 'unsupported'" class="text-xs text-slate-500 mt-1">Dein Browser unterstützt keine Push-Benachrichtigungen.</p>
+        <p v-if="pushStatus === 'denied'" class="text-xs text-slate-500 mt-1">Berechtigung wurde nicht erteilt.</p>
       </header>
 
       <!-- Leaderboard -->
