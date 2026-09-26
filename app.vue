@@ -245,15 +245,16 @@ async function pollForResults(id: string, userId: string) {
 }
 </script>
 <template>
-  <!-- h-screen und overflow-hidden verhindern, dass die ganze Seite scrollt -->
-  <div class="h-screen bg-slate-950 text-slate-100 flex flex-col items-center p-4 font-sans overflow-hidden">
+  <!-- h-[100dvh] und overflow-hidden für den festen Rahmen -->
+  <div class="h-[100dvh] bg-slate-950 text-slate-100 flex flex-col items-center p-4 font-sans overflow-hidden box-border">
 
     <!-- Header bleibt fest oben -->
     <Header :pushStatus="pushStatus" @toggle-push="ensurePushSubscription" />
-    <!-- Mittlerer Bereich: flex-1 füllt den Platz und overflow-y-auto macht ihn scrollbar -->
-    <div class="w-full flex-1 flex flex-col gap-3 items-center p-4 overflow-y-auto">
-    <template v-if="activeView === 0">
 
+    <!-- Mittlerer Bereich: flex-1 + min-h-0 + overflow-y-auto -->
+    <div class="w-full flex-1 min-h-0 flex flex-col gap-3 items-center p-4 overflow-y-auto">
+
+      <template v-if="activeView === 0">
         <UserCard :userId="displayName" />
         <PointsCard :leaderboard="leaderboard" :userId="userId" />
         <DetectCard
@@ -265,16 +266,16 @@ async function pollForResults(id: string, userId: string) {
             @submit="submitSighting"
         />
         <ResultCard :analysisResult="analysisResult" />
+      </template>
 
-    </template>
-
-    <template v-if="activeView === 1">
-      <PointsCard :leaderboard="leaderboard" :userId="userId" />
-      <Gallery :leaderboard="leaderboard" />
-    </template>
+      <template v-if="activeView === 1">
+        <PointsCard :leaderboard="leaderboard" :userId="userId" />
+        <Gallery :leaderboard="leaderboard" />
+      </template>
 
     </div>
 
+    <!-- Menu bleibt fest unten -->
     <Menu v-model="activeView" />
 
   </div>
