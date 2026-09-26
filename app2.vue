@@ -1,11 +1,21 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import Menu from './components/menu/Menu.vue'
-import DetectCard from './components/DetectCard.vue'
-import PointsCard from './components/PointsCard.vue'
-import { VehicleAnalysis, LeaderboardEntry } from './server/interface'
-import {onMounted, ref} from "vue";
-import ResultCard from "~/components/ResultCard.vue";
-import Gallery from "~/components/Gallery.vue";
+import Gallery from './components/Gallery.vue'
+
+interface VehicleAnalysis {
+  isCar: boolean
+  isYellow: boolean
+  isSmart: boolean
+  points: number
+  description: string
+}
+
+interface LeaderboardEntry {
+  userId: string
+  displayName: string
+  totalPoints: number
+}
 
 const DEVICE_ID_STORAGE_KEY = 'yellow-car-device-id'
 
@@ -47,7 +57,6 @@ async function identifyUser() {
 
 async function loadLeaderboard() {
   leaderboard.value = await $fetch<LeaderboardEntry[]>('/api/users')
-  console.log(leaderboard.value)
 }
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -196,9 +205,9 @@ async function submitSighting() {
     })
 
     if (!s3Response.ok) {
-      console.log(s3Response)
-      console.log(await s3Response.text())
-      console.log(s3Response.body)
+        console.log(s3Response)
+        console.log(await s3Response.text())
+        console.log(s3Response.body)
       throw new Error('Upload zu S3 fehlgeschlagen.')
     }
 
@@ -244,38 +253,137 @@ async function pollForResults(id: string, userId: string) {
   }, 1200)
 }
 </script>
+
 <template>
-  <!-- h-screen und overflow-hidden verhindern, dass die ganze Seite scrollt -->
-  <div class="h-screen bg-slate-950 text-slate-100 flex flex-col items-center p-4 font-sans overflow-hidden">
+  <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 pb-28 font-sans">
 
-    <!-- Header bleibt fest oben -->
-    <Header :pushStatus="pushStatus" @toggle-push="ensurePushSubscription" />
-    <!-- Mittlerer Bereich: flex-1 füllt den Platz und overflow-y-auto macht ihn scrollbar -->
-    <div class="w-full flex-1 flex flex-col gap-3 items-center p-4 overflow-y-auto">
-    <template v-if="activeView === 0">
+    <main class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
 
-        <UserCard :userId="displayName" />
-        <PointsCard :leaderboard="leaderboard" :userId="userId" />
-        <DetectCard
-            @file-select="handleFileSelect"
-            :previewUrl="previewUrl"
-            :file="file"
-            :isUploading="isUploading"
-            :isAnalyzing="isAnalyzing"
-            @submit="submitSighting"
-        />
-        <ResultCard :analysisResult="analysisResult" />
 
-    </template>
+      <!-- Header -->
+      <header class="text-center mb-6">
+        <h1 class="text-3xl font-black text-yellow-400 tracking-tight flex items-center justify-center gap-2">
+            Gelbe Autos Detector</h1>
+        <p class="text-xs text-slate-400 mt-1">Amazon Nova Lite Vision Pipeline</p>
+        <p v-if="displayName" class="text-xs text-slate-500 mt-1">Angemeldet als <span class="text-yellow-400 font-semibold">{{ displayName }}</span></p>
+        <button
+          v-if="pushStatus !== 'enabled'"
+          class="mt-3 text-xs px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-yellow-400 hover:text-yellow-400 transition-colors"
+          @click="enablePushNotifications"
+        >
+          🔔 Benachrichtigungen aktivieren
+        </button>
+        <p v-else class="mt-3 text-xs text-yellow-400">🔔 Benachrichtigungen aktiv</p>
+        <p v-if="pushStatus === 'unsupported'" class="text-xs text-slate-500 mt-1">Dein Browser unterstützt keine Push-Benachrichtigungen.</p>
+        <p v-if="pushStatus === 'denied'" class="text-xs text-slate-500 mt-1">Berechtigung wurde nicht erteilt.</p>
+        <p v-if="pushStatus === 'error'" class="text-xs text-rose-400 mt-1">{{ pushErrorDetail }}</p>
+      </header>
 
-    <template v-if="activeView === 1">
-      <PointsCard :leaderboard="leaderboard" :userId="userId" />
-      <Gallery :leaderboard="leaderboard" />
-    </template>
+      <!-- Leaderboard -->
+      <div v-if="leaderboard.length" class="mb-6 bg-slate-950/50 border border-slate-800 rounded-2xl p-4">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Punktestand</p>
+        <div class="space-y-2">
+          <div
+            v-for="entry in leaderboard"
+            :key="entry.userId"
+            class="flex items-center justify-between text-sm"
+            :class="entry.userId === userId ? 'text-yellow-400 font-bold' : 'text-slate-300'"
+          >
+            <span>{{ entry.displayName }}</span>
+            <span>{{ entry.totalPoints }} Punkte</span>
+          </div>
+        </div>
+      </div>
 
-    </div>
+      <template v-if="activeView === 0">
+      <!-- Upload Zone -->
+      <div class="mb-6">
+        <label
+          class="group relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-700 hover:border-yellow-400 rounded-2xl cursor-pointer overflow-hidden transition-all bg-slate-950/50"
+        >
+          <img
+            v-if="previewUrl"
+            :src="previewUrl"
+            class="w-full h-full object-cover"
+            alt="Vorschau"
+          />
+          <div v-else class="flex flex-col items-center justify-center p-6 text-center">
+            <span class="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</span>
+            <p class="text-sm font-semibold text-slate-300">Foto aufnehmen oder auswählen</p>
+          </div>
 
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            class="hidden"
+            @change="handleFileSelect"
+          />
+        </label>
+      </div>
+
+      <!-- Button -->
+      <button
+        :disabled="!file || isUploading || isAnalyzing"
+        class="w-full py-4 px-6 bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black rounded-xl transition-all shadow-lg hover:shadow-yellow-400/20 active:scale-[0.98] flex items-center justify-center gap-3 text-lg mb-6"
+        @click="submitSighting"
+      >
+        <span v-if="isUploading || isAnalyzing" class="animate-spin text-xl">⏳</span>
+        <span>
+          <template v-if="isUploading">Upload zu S3...</template>
+          <template v-else-if="isAnalyzing">Nova AI analysiert Bild...</template>
+          <template v-else>Sighting melden</template>
+        </span>
+      </button>
+
+      <!-- Status & Error Messages -->
+      <p v-if="errorMessage" class="p-3 bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-xl text-sm text-center mb-6">
+        ❌ {{ errorMessage }}
+      </p>
+
+      <!-- Result Card -->
+      <div
+        v-if="analysisResult"
+        class="bg-slate-950/80 border rounded-2xl p-5 backdrop-blur-sm transition-all"
+        :class="analysisResult.isCar && analysisResult.isYellow ? 'border-yellow-400/50 shadow-yellow-400/10 shadow-lg' : 'border-slate-800'"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Analyse Ergebnis</span>
+          <span
+            class="px-3 py-1 rounded-full text-xs font-black"
+            :class="analysisResult.points > 0 ? 'bg-yellow-400 text-slate-950' : 'bg-slate-800 text-slate-400'"
+          >
+            +{{ analysisResult.points }} Punkte
+          </span>
+        </div>
+
+        <div class="space-y-2 mb-4 text-sm">
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60">
+            <span class="text-slate-400">Auto erkannt:</span>
+            <span class="font-bold">{{ analysisResult.isCar ? '✅ Ja' : '❌ Nein' }}</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60">
+            <span class="text-slate-400">Farbe Gelb:</span>
+            <span class="font-bold">{{ analysisResult.isYellow ? '🟡 Ja' : '❌ Nein' }}</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60">
+            <span class="text-slate-400">Smart / Microcar:</span>
+            <span class="font-bold">{{ analysisResult.isSmart ? '🚗 Ja (Bonus!)' : 'Nein' }}</span>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-400 italic bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+          "{{ analysisResult.description }}"
+        </p>
+      </div>
+      </template>
+
+      <Gallery v-else :leaderboard="leaderboard" />
+
+    </main>
+  </div>
+
+  <div class="fixed bottom-6 left-0 right-0 flex justify-center z-50">
     <Menu v-model="activeView" />
-
   </div>
 </template>

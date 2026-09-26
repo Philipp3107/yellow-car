@@ -17,6 +17,7 @@ declare global {
   const clearSession: typeof import('../../node_modules/h3').clearSession
   const createApp: typeof import('../../node_modules/h3').createApp
   const createAppEventHandler: typeof import('../../node_modules/h3').createAppEventHandler
+  const createDynamoClient: typeof import('../../server/utils/dynamo').createDynamoClient
   const createError: typeof import('../../node_modules/h3').createError
   const createEvent: typeof import('../../node_modules/h3').createEvent
   const createEventStream: typeof import('../../node_modules/h3').createEventStream
@@ -147,3 +148,4 @@ export { defineTask, runTask } from 'nitropack/runtime/internal/task';
 export { defineNitroErrorHandler } from 'nitropack/runtime/internal/error/utils';
 export { buildAssetsURL as __buildAssetsURL, publicAssetsURL as __publicAssetsURL } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/@nuxt/nitro-server/dist/runtime/utils/paths';
 export { defineAppConfig } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/@nuxt/nitro-server/dist/runtime/utils/config';
+export { createDynamoClient } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/server/utils/dynamo';

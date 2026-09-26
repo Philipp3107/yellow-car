@@ -19,14 +19,20 @@ import { NuxtModule, ModuleDependencyMeta } from '@nuxt/schema'
 
    s3BucketName: string,
 
-   awsRegion: string,
+   vapidPublicKey: string,
+
+   vapidPrivateKey: string,
+
+   vapidSubject: string,
+
+   pushSecret: string,
 
    nitro: {
       envPrefix: string,
    },
   }
   interface SharedPublicRuntimeConfig {
-
+   vapidPublicKey: string,
   }
 declare module '@nuxt/schema' {
   interface ModuleDependencies {
