@@ -19,6 +19,7 @@ export const DetectCard: typeof import("../components/DetectCard.vue")['default'
 export const Gallery: typeof import("../components/Gallery.vue")['default']
 export const Header: typeof import("../components/Header.vue")['default']
 export const PointsCard: typeof import("../components/PointsCard.vue")['default']
+export const QuoteCard: typeof import("../components/QuoteCard.vue")['default']
 export const ResultCard: typeof import("../components/ResultCard.vue")['default']
 export const UserCard: typeof import("../components/UserCard.vue")['default']
 export const Menu: typeof import("../components/menu/Menu.vue")['default']
@@ -51,6 +52,7 @@ export const LazyDetectCard: LazyComponent<typeof import("../components/DetectCa
 export const LazyGallery: LazyComponent<typeof import("../components/Gallery.vue")['default']>
 export const LazyHeader: LazyComponent<typeof import("../components/Header.vue")['default']>
 export const LazyPointsCard: LazyComponent<typeof import("../components/PointsCard.vue")['default']>
+export const LazyQuoteCard: LazyComponent<typeof import("../components/QuoteCard.vue")['default']>
 export const LazyResultCard: LazyComponent<typeof import("../components/ResultCard.vue")['default']>
 export const LazyUserCard: LazyComponent<typeof import("../components/UserCard.vue")['default']>
 export const LazyMenu: LazyComponent<typeof import("../components/menu/Menu.vue")['default']>

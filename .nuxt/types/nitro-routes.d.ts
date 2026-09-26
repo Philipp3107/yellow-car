@@ -6,11 +6,19 @@ declare module "nitropack/types" {
     '/api/auth/identify': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/auth/identify.post').default>>>>
     }
+    '/api/media': {
+      'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/media/index.get').default>>>>
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/media/index.post').default>>>>
+    }
     '/api/push/notify': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/push/notify.post').default>>>>
     }
     '/api/push/subscribe': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/push/subscribe.post').default>>>>
+    }
+    '/api/quotes': {
+      'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/quotes/index.get').default>>>>
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/quotes/index.post').default>>>>
     }
     '/api/sightings/:id': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/sightings/[id].get').default>>>>

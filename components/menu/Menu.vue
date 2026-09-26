@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { Car, Image } from 'lucide-vue-next'
+import { Car, Image, Quote } from 'lucide-vue-next'
 
 const props = defineProps({
   modelValue: {
@@ -28,6 +28,7 @@ const emit = defineEmits(['update:modelValue'])
 const items = [
   { label: 'Melden', icon: Car },
   { label: 'Galerie', icon: Image },
+  { label: 'Quotes', icon: Quote },
 ]
 
 function select(index) {

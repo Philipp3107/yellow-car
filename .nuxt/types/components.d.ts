@@ -19,6 +19,7 @@ interface _GlobalComponents {
   Gallery: typeof import("../../components/Gallery.vue")['default']
   Header: typeof import("../../components/Header.vue")['default']
   PointsCard: typeof import("../../components/PointsCard.vue")['default']
+  QuoteCard: typeof import("../../components/QuoteCard.vue")['default']
   ResultCard: typeof import("../../components/ResultCard.vue")['default']
   UserCard: typeof import("../../components/UserCard.vue")['default']
   Menu: typeof import("../../components/menu/Menu.vue")['default']
@@ -51,6 +52,7 @@ interface _GlobalComponents {
   LazyGallery: LazyComponent<typeof import("../../components/Gallery.vue")['default']>
   LazyHeader: LazyComponent<typeof import("../../components/Header.vue")['default']>
   LazyPointsCard: LazyComponent<typeof import("../../components/PointsCard.vue")['default']>
+  LazyQuoteCard: LazyComponent<typeof import("../../components/QuoteCard.vue")['default']>
   LazyResultCard: LazyComponent<typeof import("../../components/ResultCard.vue")['default']>
   LazyUserCard: LazyComponent<typeof import("../../components/UserCard.vue")['default']>
   LazyMenu: LazyComponent<typeof import("../../components/menu/Menu.vue")['default']>

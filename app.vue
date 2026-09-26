@@ -2,6 +2,7 @@
 import Menu from './components/menu/Menu.vue'
 import DetectCard from './components/DetectCard.vue'
 import PointsCard from './components/PointsCard.vue'
+import QuoteCard from './components/QuoteCard.vue'
 import { VehicleAnalysis, LeaderboardEntry } from './server/interface'
 import {onMounted, ref} from "vue";
 import ResultCard from "~/components/ResultCard.vue";
@@ -9,7 +10,7 @@ import Gallery from "~/components/Gallery.vue";
 
 const DEVICE_ID_STORAGE_KEY = 'yellow-car-device-id'
 
-const activeView = ref(0)
+const activeView = ref(2)
 
 const file = ref<File | null>(null)
 const previewUrl = ref<string | null>(null)
@@ -271,6 +272,11 @@ async function pollForResults(id: string, userId: string) {
       <template v-if="activeView === 1">
         <PointsCard :leaderboard="leaderboard" :userId="userId" />
         <Gallery :leaderboard="leaderboard" />
+      </template>
+
+      <template v-if="activeView === 2">
+        <PointsCard :leaderboard="leaderboard" :userId="userId" />
+        <QuoteCard :userId="userId" />
       </template>
 
     </div>
