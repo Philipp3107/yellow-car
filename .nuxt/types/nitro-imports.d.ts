@@ -1,4 +1,6 @@
 declare global {
+  const COLLECTIONS_TABLE: typeof import('../../server/utils/collections').COLLECTIONS_TABLE
+  const COLLECTION_META_KEY: typeof import('../../server/utils/collections').COLLECTION_META_KEY
   const H3Error: typeof import('../../node_modules/h3').H3Error
   const H3Event: typeof import('../../node_modules/h3').H3Event
   const MEDIA_META_KEY: typeof import('../../server/utils/catalog').MEDIA_META_KEY
@@ -15,6 +17,7 @@ declare global {
   const cachedEventHandler: typeof import('../../node_modules/nitropack/dist/runtime/internal/cache').cachedEventHandler
   const cachedFunction: typeof import('../../node_modules/nitropack/dist/runtime/internal/cache').cachedFunction
   const callNodeListener: typeof import('../../node_modules/h3').callNodeListener
+  const cleanCollectionName: typeof import('../../server/utils/collections').cleanCollectionName
   const clearResponseHeaders: typeof import('../../node_modules/h3').clearResponseHeaders
   const clearSession: typeof import('../../node_modules/h3').clearSession
   const createApp: typeof import('../../node_modules/h3').createApp
@@ -44,7 +47,9 @@ declare global {
   const deleteCookie: typeof import('../../node_modules/h3').deleteCookie
   const dynamicEventHandler: typeof import('../../node_modules/h3').dynamicEventHandler
   const eventHandler: typeof import('../../node_modules/h3').eventHandler
+  const extractShareUrl: typeof import('../../server/utils/collections').extractShareUrl
   const fetchWithEvent: typeof import('../../node_modules/h3').fetchWithEvent
+  const findOrCreateCollection: typeof import('../../server/utils/collections').findOrCreateCollection
   const fromNodeMiddleware: typeof import('../../node_modules/h3').fromNodeMiddleware
   const fromPlainHandler: typeof import('../../node_modules/h3').fromPlainHandler
   const fromWebHandler: typeof import('../../node_modules/h3').fromWebHandler
@@ -84,6 +89,7 @@ declare global {
   const isStream: typeof import('../../node_modules/h3').isStream
   const isWebResponse: typeof import('../../node_modules/h3').isWebResponse
   const lazyEventHandler: typeof import('../../node_modules/h3').lazyEventHandler
+  const listCollections: typeof import('../../server/utils/collections').listCollections
   const nitroPlugin: typeof import('../../node_modules/nitropack/dist/runtime/internal/plugin').nitroPlugin
   const parseCookies: typeof import('../../node_modules/h3').parseCookies
   const promisifyNodeListener: typeof import('../../node_modules/h3').promisifyNodeListener
@@ -116,6 +122,7 @@ declare global {
   const setResponseHeaders: typeof import('../../node_modules/h3').setResponseHeaders
   const setResponseStatus: typeof import('../../node_modules/h3').setResponseStatus
   const splitCookiesString: typeof import('../../node_modules/h3').splitCookiesString
+  const toCollection: typeof import('../../server/utils/collections').toCollection
   const toEventHandler: typeof import('../../node_modules/h3').toEventHandler
   const toNodeListener: typeof import('../../node_modules/h3').toNodeListener
   const toPlainHandler: typeof import('../../node_modules/h3').toPlainHandler
@@ -156,5 +163,6 @@ export { defineNitroErrorHandler } from 'nitropack/runtime/internal/error/utils'
 export { buildAssetsURL as __buildAssetsURL, publicAssetsURL as __publicAssetsURL } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/@nuxt/nitro-server/dist/runtime/utils/paths';
 export { defineAppConfig } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/node_modules/@nuxt/nitro-server/dist/runtime/utils/config';
 export { MEDIA_META_KEY, MEDIA_TYPES, requireUser } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/server/utils/catalog';
+export { COLLECTIONS_TABLE, COLLECTION_META_KEY, toCollection, listCollections, cleanCollectionName, findOrCreateCollection, extractShareUrl } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/server/utils/collections';
 export { createDynamoClient } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/server/utils/dynamo';
 export { sendPushToOthers } from '/Users/philippkotte/Developer/aws/hannen-yellow-car/frontend/server/utils/push';

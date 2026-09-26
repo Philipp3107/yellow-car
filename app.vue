@@ -7,10 +7,35 @@ import { VehicleAnalysis, LeaderboardEntry } from './server/interface'
 import {onMounted, ref} from "vue";
 import ResultCard from "~/components/ResultCard.vue";
 import Gallery from "~/components/Gallery.vue";
+import Collections from "~/components/Collections.vue";
 
 const DEVICE_ID_STORAGE_KEY = 'yellow-car-device-id'
+const COLLECTIONS_VIEW = 3
 
-const activeView = ref(2)
+const activeView = ref(0)
+
+const sharedUrl = ref<string | null>(null)
+const openCollectionId = ref<string | null>(null)
+
+// Android Share-Target und Push-Klicks landen als Query-Parameter auf "/"
+function handleLaunchParams() {
+  const params = new URLSearchParams(window.location.search)
+  const shared = [params.get('share_url'), params.get('share_text'), params.get('share_title')]
+    .map((value) => value?.match(/https?:\/\/\S+/)?.[0])
+    .find(Boolean)
+
+  if (shared) {
+    sharedUrl.value = shared
+    activeView.value = COLLECTIONS_VIEW
+  } else if (params.get('collection')) {
+    openCollectionId.value = params.get('collection')
+    activeView.value = COLLECTIONS_VIEW
+  }
+
+  if (params.toString()) {
+    window.history.replaceState(null, '', '/')
+  }
+}
 
 const file = ref<File | null>(null)
 const previewUrl = ref<string | null>(null)
@@ -141,6 +166,7 @@ async function enablePushNotifications() {
 }
 
 onMounted(async () => {
+  handleLaunchParams()
   try {
     await ensurePushSubscription()
     await identifyUser()
@@ -277,6 +303,15 @@ async function pollForResults(id: string, userId: string) {
       <template v-if="activeView === 2">
         <PointsCard :leaderboard="leaderboard" :userId="userId" />
         <QuoteCard :userId="userId" />
+      </template>
+
+      <template v-if="activeView === COLLECTIONS_VIEW">
+        <Collections
+            :userId="userId"
+            :sharedUrl="sharedUrl"
+            :openCollectionId="openCollectionId"
+            @share-done="sharedUrl = null"
+        />
       </template>
 
     </div>

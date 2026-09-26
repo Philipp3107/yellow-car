@@ -15,6 +15,7 @@ type LazyComponent<T> = DefineComponent<HydrationStrategies, {}, {}, {}, {}, {},
 
 
 export const Card: typeof import("../components/Card.vue")['default']
+export const Collections: typeof import("../components/Collections.vue")['default']
 export const DetectCard: typeof import("../components/DetectCard.vue")['default']
 export const Gallery: typeof import("../components/Gallery.vue")['default']
 export const Header: typeof import("../components/Header.vue")['default']
@@ -48,6 +49,7 @@ export const Html: typeof import("../node_modules/nuxt/dist/head/runtime/compone
 export const Body: typeof import("../node_modules/nuxt/dist/head/runtime/components")['Body']
 export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
 export const LazyCard: LazyComponent<typeof import("../components/Card.vue")['default']>
+export const LazyCollections: LazyComponent<typeof import("../components/Collections.vue")['default']>
 export const LazyDetectCard: LazyComponent<typeof import("../components/DetectCard.vue")['default']>
 export const LazyGallery: LazyComponent<typeof import("../components/Gallery.vue")['default']>
 export const LazyHeader: LazyComponent<typeof import("../components/Header.vue")['default']>

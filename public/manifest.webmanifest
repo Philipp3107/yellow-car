@@ -2,8 +2,19 @@
   "name": "Gelbe Autos Detector",
   "short_name": "Gelbe Autos",
   "description": "Amazon Nova Lite Vision Pipeline zum Punkte sammeln fuer gelbe Autos",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "title": "share_title",
+      "text": "share_text",
+      "url": "share_url"
+    }
+  },
   "background_color": "#020617",
   "theme_color": "#020617",
   "icons": [
