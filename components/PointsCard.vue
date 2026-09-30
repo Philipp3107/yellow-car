@@ -10,7 +10,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'refesh'): void
+  (e: 'refresh'): void
 }>()
 
 const sortedLeaderboard = computed(() => {
@@ -22,10 +22,10 @@ const sortedLeaderboard = computed(() => {
 <template>
   <div class="bg-slate-800 p-4 rounded-lg w-full">
     <div class="m-2">
-        <div>
+        <div class="flex justify-between">
             <p class="text-slate-500 text-sm">Punktestand</p>
-            <button @click="emit('refesh')">
-                <RefreshCcw @click=""/>
+            <button @click="emit('refresh')">
+                <RefreshCcw/>
             </button>
         </div>
 
