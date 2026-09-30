@@ -276,7 +276,7 @@ async function pollForResults(id: string, userId: string) {
   <div class="h-[100dvh] bg-slate-950 text-slate-100 flex flex-col items-center p-4 font-sans overflow-hidden box-border">
 
     <!-- Header bleibt fest oben -->
-    <Header :pushStatus="pushStatus" @toggle-push="ensurePushSubscription" />
+    <Header :pushStatus="pushStatus" @toggle-push="enablePushNotifications" />
 
     <!-- Mittlerer Bereich: flex-1 + min-h-0 + overflow-y-auto -->
     <div class="w-full flex-1 min-h-0 flex flex-col gap-3 items-center p-4 overflow-y-auto">
