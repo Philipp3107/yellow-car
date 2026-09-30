@@ -169,6 +169,7 @@ onMounted(async () => {
   handleLaunchParams()
   try {
     await ensurePushSubscription()
+    await enablePushNotifications()
     await identifyUser()
     await loadLeaderboard()
   } catch (err) {
