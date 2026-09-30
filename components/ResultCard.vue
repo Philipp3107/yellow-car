@@ -2,9 +2,25 @@
 
 import type VehicleAnalysis from "#server/interface/VehicleAnalysis";
 
-defineProps<{
+const props = defineProps<{
   analysisResult: VehicleAnalysis | null
 }>()
+
+// Event nach außen definieren
+const emit = defineEmits<{
+  (e: 'result-rendered'): void
+}>()
+
+// Sobald ein neues Ergebnis vorhanden ist, Event abfeuern
+watch(
+  () => props.analysisResult,
+  (newResult) => {
+    if (newResult) {
+      emit('result-rendered')
+    }
+  }
+)
+
 </script>
 
 <template>

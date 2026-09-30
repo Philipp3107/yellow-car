@@ -284,7 +284,7 @@ async function pollForResults(id: string, userId: string) {
 
       <template v-if="activeView === 0">
         <UserCard :userId="displayName" />
-        <PointsCard :leaderboard="leaderboard" :userId="userId" />
+        <PointsCard :leaderboard="leaderboard" :userId="userId" @refresh="loadLeaderboard"/>
         <DetectCard
             @file-select="handleFileSelect"
             :previewUrl="previewUrl"
@@ -293,7 +293,7 @@ async function pollForResults(id: string, userId: string) {
             :isAnalyzing="isAnalyzing"
             @submit="submitSighting"
         />
-        <ResultCard :analysisResult="analysisResult" />
+        <ResultCard :analysisResult="analysisResult" @result-rendered="loadLeaderboard"/>
       </template>
 
       <template v-if="activeView === 1">
