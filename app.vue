@@ -16,6 +16,7 @@ const activeView = ref(0)
 
 const sharedUrl = ref<string | null>(null)
 const openCollectionId = ref<string | null>(null)
+const reloadLeaderboard = ref<boolean>(false)
 
 // Android Share-Target und Push-Klicks landen als Query-Parameter auf "/"
 function handleLaunchParams() {
@@ -72,8 +73,10 @@ async function identifyUser() {
 }
 
 async function loadLeaderboard() {
+  reloadLeaderboard.value = true
+  leaderboard.value = []
   leaderboard.value = await $fetch<LeaderboardEntry[]>('/api/users')
-  console.log(leaderboard.value)
+  reloadLeaderboard.value = false
 }
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -284,7 +287,7 @@ async function pollForResults(id: string, userId: string) {
 
       <template v-if="activeView === 0">
         <UserCard :userId="displayName" />
-        <PointsCard :leaderboard="leaderboard" :userId="userId" @refresh="loadLeaderboard"/>
+        <PointsCard :leaderboard="leaderboard" :userId="userId" @refresh="loadLeaderboard" :reload-leaderboard="reloadLeaderboard"/>
         <DetectCard
             @file-select="handleFileSelect"
             :previewUrl="previewUrl"
@@ -297,12 +300,12 @@ async function pollForResults(id: string, userId: string) {
       </template>
 
       <template v-if="activeView === 1">
-        <PointsCard :leaderboard="leaderboard" :userId="userId" />
+        <PointsCard :leaderboard="leaderboard" :userId="userId" @refresh="loadLeaderboard" :reload-leaderboard="reloadLeaderboard" />
         <Gallery :leaderboard="leaderboard" />
       </template>
 
       <template v-if="activeView === 2">
-        <PointsCard :leaderboard="leaderboard" :userId="userId" />
+        <PointsCard :leaderboard="leaderboard" :userId="userId" @refresh="loadLeaderboard" :reload-leaderboard="reloadLeaderboard" />
         <QuoteCard :userId="userId" />
       </template>
 
