@@ -26,7 +26,8 @@ const sortedLeaderboard = computed(() => {
         <div class="flex justify-between">
             <p class="text-slate-500 text-sm">Punktestand</p>
             <button @click="emit('refresh')">
-<RefreshCcw :class="[props.reloadLeaderboard ? 'animate-[spin_1s_linear_infinite_reverse]' : 'text-slate-500']"/>            </button>
+                <RefreshCcw class="w-4 h-4" :class="[props.reloadLeaderboard ? 'animate-[spin_1s_linear_infinite_reverse]' : 'text-slate-500 ']"/>
+            </button>
         </div>
 
       <div v-for="person in sortedLeaderboard" :key="person.id" class="flex justify-between" :class="[userId == person.userId ? 'text-yellow-400 text-sm font-bold' : 'text-slate-300 text-sm']">
